@@ -1,0 +1,28 @@
+{
+  "books": [
+    {
+      "id": "1ff7",
+      "title": "The Great Gatsby",
+      "description": "Generally considered to be F. Scott Fitzgerald's finest novel, The Great Gatsby is a consummate summary of the \"roaring twenties\", and a devastating expose of the \"Jazz Age\". Through the narration of Nick Carraway, the reader is taken into the superficially glittering world of the mansions which lined the Long Island shore in the 1920s, to encounter Nick's cousin Daisy, her brash but wealthy husband Tom Buchanan, Jay Gatsby and the mystery that surrounds him.",
+      "author": "F. Scott Fitzgerald",
+      "year": 1925
+    },
+    {
+      "id": "a345",
+      "title": "The Great Gatsby",
+      "description": "Generally considered to be F. Scott Fitzgerald's finest novel, The Great Gatsby is a consummate summary of the \"roaring twenties\", and a devastating expose of the \"Jazz Age\". Through the narration of Nick Carraway, the reader is taken into the superficially glittering world of the mansions which lined the Long Island shore in the 1920s, to encounter Nick's cousin Daisy, her brash but wealthy husband Tom Buchanan, Jay Gatsby and the mystery that surrounds him.",
+      "author": "F. Scott Fitzgerald",
+      "year": 1925
+    }
+  ],
+  "authors": [
+    {
+      "name": "F. Scott Fitzgerald",
+      "books": [
+        "The Great Gatsby"
+      ],
+      "id": "5ef2"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

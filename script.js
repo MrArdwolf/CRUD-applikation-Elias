@@ -1,0 +1,162 @@
+document.getElementById("add-book").addEventListener("click", (e) => {
+    e.preventDefault()
+    addBook()
+})
+document.getElementById("get-books").addEventListener("click", (e) => {
+    e.preventDefault()
+    getBooks()
+})
+const bookContainer = document.getElementById("bookContainer")
+
+function updateBookContainer(books) {
+    bookContainer.innerHTML = "";
+    books.forEach(book => {
+        const bookElement = document.createElement("div");
+        bookElement.classList.add("book");
+
+        const titleElement = document.createElement("h3");
+        titleElement.textContent = "Title:";
+
+        const titleValue = document.createElement("p");
+        titleValue.textContent = book.title;
+
+        const descriptionElement = document.createElement("h3");
+        descriptionElement.textContent = "Description:";
+
+        const descriptionValue = document.createElement("p");
+        descriptionValue.textContent = book.description;
+
+        const authorElement = document.createElement("h3");
+        authorElement.textContent = "Author:";
+
+        const authorValue = document.createElement("p");
+        authorValue.textContent = book.author;
+
+        const yearElement = document.createElement("h3");
+        yearElement.textContent = "Year:";
+
+        const yearValue = document.createElement("p");
+        yearValue.textContent = book.year;
+
+        bookElement.appendChild(titleElement);
+        bookElement.appendChild(titleValue);
+        bookElement.appendChild(descriptionElement);
+        bookElement.appendChild(descriptionValue);
+        bookElement.appendChild(authorElement);
+        bookElement.appendChild(authorValue);
+        bookElement.appendChild(yearElement);
+        bookElement.appendChild(yearValue);
+        bookContainer.appendChild(bookElement);
+    })
+}
+
+
+async function getBooks() {
+    await fetch("http://localhost:3000/books")
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            updateBookContainer(data)
+        })
+        .catch(error => {
+            console.error("Error fetching books:", error)
+        })
+}
+
+async function addBook() {
+    try {
+        const author = await getAuthorByName("F. Scott Fitzgerald")
+        if (!author) {
+            throw new Error("Author ID not found for F. Scott Fitzgerald")
+        }
+
+        const response = await fetch("http://localhost:3000/books", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: "The Great Gatsby",
+                description: `Generally considered to be F. Scott Fitzgerald's finest novel, The Great Gatsby is a consummate summary of the "roaring twenties", and a devastating expose of the "Jazz Age". Through the narration of Nick Carraway, the reader is taken into the superficially glittering world of the mansions which lined the Long Island shore in the 1920s, to encounter Nick's cousin Daisy, her brash but wealthy husband Tom Buchanan, Jay Gatsby and the mystery that surrounds him.`,
+                author: author.name,
+                year: 1925
+            })
+        })
+        const data = await response.json()
+
+        console.log("Book added:", data)
+
+        await addBookToAuthor(data)
+        getBooks()
+    } catch (error) {
+        console.error("Error adding book:", error)
+    }
+}
+
+function deleteBook() {
+
+}
+
+function updateBook() {
+
+}
+
+
+
+
+
+
+async function getAuthorByName(name) {
+    try {
+        const response = await fetch("http://localhost:3000/authors")
+        const data = await response.json()
+        console.log("Authors fetched:", data)
+        const author = data.find(author => author.name === name)
+        return author ? author : null
+    } catch (error) {
+        console.error("Error fetching authors:", error)
+        return null
+    }
+}
+
+async function addAuthor() {
+
+}
+
+function deleteAuthor() {
+
+}
+
+async function addBookToAuthor(data) {
+    try {
+        const getResponse = await getAuthorByName("F. Scott Fitzgerald")
+        if (!getResponse) {
+            throw new Error("Author not found for F. Scott Fitzgerald")
+        }
+
+        const books = getResponse.books || []
+        if (!books.includes(data.title)) {
+            books.push(data.title)
+        }
+
+        const response = await fetch(`http://localhost:3000/authors/${getResponse.id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: "F. Scott Fitzgerald",
+                books: books,
+            })
+        })
+        const updatedAuthor = await response.json()
+
+        console.log("Book added to author:", updatedAuthor)
+    }
+    catch (error) {
+        console.error("Error updating author:", error)
+    }
+}
+
+
+getBooks()
