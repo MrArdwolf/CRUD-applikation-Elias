@@ -38,6 +38,18 @@ function updateBookContainer(books) {
         const yearValue = document.createElement("p");
         yearValue.textContent = book.year;
 
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
+            deleteBook(book.id)
+        })
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", () => {
+            createEditForm(book, bookElement)
+        })
+
         bookElement.appendChild(titleElement);
         bookElement.appendChild(titleValue);
         bookElement.appendChild(descriptionElement);
@@ -46,6 +58,8 @@ function updateBookContainer(books) {
         bookElement.appendChild(authorValue);
         bookElement.appendChild(yearElement);
         bookElement.appendChild(yearValue);
+        bookElement.appendChild(deleteButton);
+        bookElement.appendChild(editButton);
         bookContainer.appendChild(bookElement);
     })
 }
@@ -84,6 +98,10 @@ async function addBook() {
         })
         const data = await response.json()
 
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to add book")
+        }
+
         console.log("Book added:", data)
 
         await addBookToAuthor(data)
@@ -93,12 +111,128 @@ async function addBook() {
     }
 }
 
-function deleteBook() {
+async function createEditForm(book, bookElement) {
+    const form = document.createElement("form")
+    form.classList.add("edit-form")
+
+        const titleElement = document.createElement("h3");
+        titleElement.textContent = "Title:";
+
+    const titleInput = document.createElement("input")
+    titleInput.type = "text"
+    titleInput.value = book.title
+
+        const descriptionElement = document.createElement("h3");
+        descriptionElement.textContent = "Description:";
+
+    const descriptionInput = document.createElement("textarea")
+    descriptionInput.value = book.description
+
+        const authorElement = document.createElement("h3");
+        authorElement.textContent = "Author:";
+
+    const authorInput = document.createElement("select")
+    const authors = await fetch("http://localhost:3000/authors").then(res => res.json())
+    authors.forEach(author => {
+        const option = document.createElement("option")
+        option.value = author.name
+        option.textContent = author.name
+        if (author.name === book.author) {
+            option.selected = true
+        }
+        authorInput.appendChild(option)
+    })
+
+    const newAuthorInput = document.createElement("input")
+    newAuthorInput.type = "text"
+    newAuthorInput.placeholder = "Or enter new author"
+
+        const yearElement = document.createElement("h3");
+        yearElement.textContent = "Year:";
+
+    const yearInput = document.createElement("input")
+    yearInput.type = "number"
+    yearInput.value = book.year
+
+    const saveButton = document.createElement("button")
+    saveButton.textContent = "Save"
+    saveButton.type = "submit"
+    
+
+
+    const cancelButton = document.createElement("button")
+    cancelButton.textContent = "Cancel"
+    cancelButton.type = "button"
+    cancelButton.addEventListener("click", () => {
+        form.remove()
+        getBooks()
+    })
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const updatedData = {
+            title: titleInput.value,
+            description: descriptionInput.value,
+            author: authorInput.value || newAuthorInput.value,
+            year: parseInt(yearInput.value)
+        }
+        await updateBook(book.id, updatedData)
+        form.remove()
+    })
+
+    form.appendChild(titleElement)
+    form.appendChild(titleInput)
+    form.appendChild(descriptionElement)
+    form.appendChild(descriptionInput)
+    form.appendChild(authorElement)
+    form.appendChild(authorInput)
+    form.appendChild(newAuthorInput)
+    form.appendChild(yearElement)
+    form.appendChild(yearInput)
+    form.appendChild(saveButton)
+    form.appendChild(cancelButton)
+
+    bookElement.innerHTML = ""
+    bookElement.appendChild(form)
 
 }
 
-function updateBook() {
+async function deleteBook(id) {
+    try {
+        response = await fetch(`http://localhost:3000/books/${id}`, {
+            method: "DELETE"
+        })
+        const data = await response.json()
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to delete book")
+        }
 
+        console.log("Book deleted:", data)
+        getBooks()
+    }
+    catch (error) {
+        console.error("Error deleting book:", error)
+    }
+}
+
+async function updateBook(id, updatedData) {
+    try {
+        const response = await fetch(`http://localhost:3000/books/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedData)
+        })
+        const data = await response.json()
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to update book")
+        }
+        getBooks()
+    }
+    catch (error) {
+        console.error("Error updating book:", error)
+    }
 }
 
 
