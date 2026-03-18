@@ -6,15 +6,71 @@
       "author": "F. Scott Fitzgerald",
       "year": 1925,
       "id": "a345"
+    },
+    {
+      "id": "3fa6",
+      "title": "t",
+      "description": "d",
+      "author": "jag",
+      "year": 2026
+    },
+    {
+      "id": "0258",
+      "title": "f",
+      "description": "s",
+      "author": "F. Scott Fitzgerald",
+      "year": 2
+    },
+    {
+      "id": "ffa4",
+      "title": "2",
+      "description": "1",
+      "author": "3",
+      "year": 4
+    },
+    {
+      "id": "39f0",
+      "title": "1",
+      "description": "2",
+      "author": "4",
+      "year": 3
+    },
+    {
+      "id": "db1c",
+      "title": "6",
+      "description": "7",
+      "author": "8",
+      "year": 9
     }
   ],
   "authors": [
     {
       "name": "F. Scott Fitzgerald",
       "books": [
-        "The Great Gatsby"
+        "The Great Gatsby",
+        "t",
+        "f",
+        "2",
+        "1"
       ],
       "id": "5ef2"
+    },
+    {
+      "id": "73e4",
+      "name": "3",
+      "books": []
+    },
+    {
+      "id": "4572",
+      "name": "4",
+      "books": []
+    },
+    {
+      "name": "8",
+      "books": [
+        "6"
+      ],
+      "id": "dbdd"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

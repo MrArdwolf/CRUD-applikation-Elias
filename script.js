@@ -1,12 +1,13 @@
 document.getElementById("add-book").addEventListener("click", (e) => {
     e.preventDefault()
-    addBook()
+    createAddForm()
 })
 document.getElementById("get-books").addEventListener("click", (e) => {
     e.preventDefault()
     getBooks()
 })
 const bookContainer = document.getElementById("bookContainer")
+const app = document.getElementById("app")
 
 function updateBookContainer(books) {
     bookContainer.innerHTML = "";
@@ -29,8 +30,11 @@ function updateBookContainer(books) {
         const authorElement = document.createElement("h3");
         authorElement.textContent = "Author:";
 
-        const authorValue = document.createElement("p");
+        const authorValue = document.createElement("a");
         authorValue.textContent = book.author;
+        authorValue.addEventListener("click", () => {
+            getBooksByAuthor(book.author)
+        });
 
         const yearElement = document.createElement("h3");
         yearElement.textContent = "Year:";
@@ -66,22 +70,126 @@ function updateBookContainer(books) {
 
 
 async function getBooks() {
-    await fetch("http://localhost:3000/books")
-        .then(response => response.json())
-        .then(data => {
-            console.log(data)
-            updateBookContainer(data)
-        })
-        .catch(error => {
-            console.error("Error fetching books:", error)
-        })
+    try {
+        const response = await fetch("http://localhost:3000/books")
+        const data = await response.json()
+        console.log(data)
+        updateBookContainer(data)
+        return data
+    } catch (error) {
+        console.error("Error fetching books:", error)
+    }
 }
 
-async function addBook() {
+async function getBooksByAuthor(author) {
     try {
-        const author = await getAuthorByName("F. Scott Fitzgerald")
+        const books = await getBooks()
+        console.log("Books fetched for author:", books)
+        const booksByAuthor = books.filter(book => book.author === author)
+        updateBookContainer(booksByAuthor)
+    } catch (error) {
+        console.error("Error fetching books by author:", error)
+    }
+}
+
+async function createAddForm() {
+    const form = document.createElement("form")
+    form.classList.add("add-form")
+
+    const titleLabel = document.createElement("label");
+    titleLabel.textContent = "Title:";
+    titleLabel.htmlFor = "title"
+
+    const titleInput = document.createElement("input")
+    titleInput.type = "text"
+    titleInput.required = true
+    titleInput.placeholder = "Enter book title"
+    titleInput.name = "title"
+
+    const descriptionLabel = document.createElement("label");
+    descriptionLabel.textContent = "Description:";
+    descriptionLabel.htmlFor = "description"
+
+    const descriptionInput = document.createElement("textarea")
+    descriptionInput.required = true
+    descriptionInput.placeholder = "Enter book description"
+    descriptionInput.name = "description"
+
+    const authorLabel = document.createElement("label");
+    authorLabel.textContent = "Author:";
+    authorLabel.htmlFor = "author"
+
+    const authorInput = document.createElement("select")
+    authorInput.required = true
+    authorInput.name = "author"
+
+    const authors = await fetch("http://localhost:3000/authors").then(res => res.json())
+    authors.forEach(author => {
+        const option = document.createElement("option")
+        option.value = author.name
+        option.textContent = author.name
+        authorInput.appendChild(option)
+    })
+
+    const newAuthorInput = document.createElement("input")
+    newAuthorInput.type = "text"
+    newAuthorInput.placeholder = "Or enter new author"
+    newAuthorInput.name = "newAuthor"
+
+    const yearLabel = document.createElement("label");
+    yearLabel.textContent = "Year:";
+    yearLabel.htmlFor = "year"
+
+    const yearInput = document.createElement("input")
+    yearInput.type = "number"
+    yearInput.name = "year"
+
+    const addButton = document.createElement("button")
+    addButton.textContent = "Add"
+    addButton.type = "submit"
+
+    const cancelButton = document.createElement("button")
+    cancelButton.textContent = "Cancel"
+    cancelButton.type = "button"
+    cancelButton.addEventListener("click", () => {
+        form.remove()
+        removeEventListener("submit", addBook)
+        removeEventListener("click", cancelButton)
+    })
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const newBookData = {
+            title: titleInput.value,
+            description: descriptionInput.value,
+            author: newAuthorInput.value || authorInput.value,
+            year: parseInt(yearInput.value)
+        }
+        await addBook(newBookData)
+        form.remove()
+        removeEventListener("submit", addBook)
+        removeEventListener("click", cancelButton)
+    })
+
+    form.appendChild(titleLabel)
+    form.appendChild(titleInput)
+    form.appendChild(descriptionLabel)
+    form.appendChild(descriptionInput)
+    form.appendChild(authorLabel)
+    form.appendChild(authorInput)
+    form.appendChild(newAuthorInput)
+    form.appendChild(yearLabel)
+    form.appendChild(yearInput)
+    form.appendChild(addButton)
+    form.appendChild(cancelButton)
+    app.appendChild(form)
+}
+
+async function addBook(bookData) {
+    try {
+        const author = await getAuthorByName(bookData.author)
         if (!author) {
-            throw new Error("Author ID not found for F. Scott Fitzgerald")
+            await addAuthor(bookData.author)
         }
 
         const response = await fetch("http://localhost:3000/books", {
@@ -89,12 +197,7 @@ async function addBook() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                title: "The Great Gatsby",
-                description: `Generally considered to be F. Scott Fitzgerald's finest novel, The Great Gatsby is a consummate summary of the "roaring twenties", and a devastating expose of the "Jazz Age". Through the narration of Nick Carraway, the reader is taken into the superficially glittering world of the mansions which lined the Long Island shore in the 1920s, to encounter Nick's cousin Daisy, her brash but wealthy husband Tom Buchanan, Jay Gatsby and the mystery that surrounds him.`,
-                author: author.name,
-                year: 1925
-            })
+            body: JSON.stringify(bookData)
         })
         const data = await response.json()
 
@@ -115,21 +218,21 @@ async function createEditForm(book, bookElement) {
     const form = document.createElement("form")
     form.classList.add("edit-form")
 
-        const titleElement = document.createElement("h3");
-        titleElement.textContent = "Title:";
+    const titleElement = document.createElement("h3");
+    titleElement.textContent = "Title:";
 
     const titleInput = document.createElement("input")
     titleInput.type = "text"
     titleInput.value = book.title
 
-        const descriptionElement = document.createElement("h3");
-        descriptionElement.textContent = "Description:";
+    const descriptionElement = document.createElement("h3");
+    descriptionElement.textContent = "Description:";
 
     const descriptionInput = document.createElement("textarea")
     descriptionInput.value = book.description
 
-        const authorElement = document.createElement("h3");
-        authorElement.textContent = "Author:";
+    const authorElement = document.createElement("h3");
+    authorElement.textContent = "Author:";
 
     const authorInput = document.createElement("select")
     const authors = await fetch("http://localhost:3000/authors").then(res => res.json())
@@ -147,8 +250,8 @@ async function createEditForm(book, bookElement) {
     newAuthorInput.type = "text"
     newAuthorInput.placeholder = "Or enter new author"
 
-        const yearElement = document.createElement("h3");
-        yearElement.textContent = "Year:";
+    const yearElement = document.createElement("h3");
+    yearElement.textContent = "Year:";
 
     const yearInput = document.createElement("input")
     yearInput.type = "number"
@@ -157,7 +260,7 @@ async function createEditForm(book, bookElement) {
     const saveButton = document.createElement("button")
     saveButton.textContent = "Save"
     saveButton.type = "submit"
-    
+
 
 
     const cancelButton = document.createElement("button")
@@ -244,6 +347,9 @@ async function getAuthorByName(name) {
     try {
         const response = await fetch("http://localhost:3000/authors")
         const data = await response.json()
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch authors")
+        }
         console.log("Authors fetched:", data)
         const author = data.find(author => author.name === name)
         return author ? author : null
@@ -253,24 +359,44 @@ async function getAuthorByName(name) {
     }
 }
 
-async function addAuthor() {
-
+async function addAuthor(name) {
+    try {
+        const response = await fetch("http://localhost:3000/authors", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name,
+                books: []
+            })
+        })
+        const newAuthor = await response.json()
+        if (!response.ok) {
+            throw new Error(newAuthor.message || "Failed to add author")
+        }
+        console.log("Author added:", newAuthor)
+        return newAuthor
+    } catch (error) {
+        console.error("Error adding author:", error)
+        return null
+    }
 }
 
 function deleteAuthor() {
 
 }
 
-async function addBookToAuthor(data) {
+async function addBookToAuthor(bookData) {
     try {
-        const getResponse = await getAuthorByName("F. Scott Fitzgerald")
+        const getResponse = await getAuthorByName(bookData.author)
         if (!getResponse) {
-            throw new Error("Author not found for F. Scott Fitzgerald")
+            throw new Error("Author not found")
         }
 
         const books = getResponse.books || []
-        if (!books.includes(data.title)) {
-            books.push(data.title)
+        if (!books.includes(bookData.title)) {
+            books.push(bookData.title)
         }
 
         const response = await fetch(`http://localhost:3000/authors/${getResponse.id}`, {
@@ -279,7 +405,7 @@ async function addBookToAuthor(data) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: "F. Scott Fitzgerald",
+                name: bookData.author,
                 books: books,
             })
         })
