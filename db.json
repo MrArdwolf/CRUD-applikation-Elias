@@ -3,74 +3,54 @@
     {
       "title": "The Great Gatsby",
       "description": "Generally considered to be F. Scott Fitzgerald's finest novel, The Great Gatsby is a consummate summary of the \"roaring twenties\", and a devastating expose of the \"Jazz Age\". Through the narration of Nick Carraway, the reader is taken into the superficially glittering world of the mansions which lined the Long Island shore in the 1920s, to encounter Nick's cousin Daisy, her brash but wealthy husband Tom Buchanan, Jay Gatsby and the mystery that surrounds him.",
-      "author": "F. Scott Fitzgerald",
+      "author": "5ef2",
       "year": 1925,
       "id": "a345"
     },
     {
-      "id": "3fa6",
-      "title": "t",
-      "description": "d",
-      "author": "jag",
-      "year": 2026
+      "id": "d08d",
+      "title": "asdasd",
+      "description": "asfasfas",
+      "author": "5ef2",
+      "year": 1234
     },
     {
-      "id": "0258",
-      "title": "f",
-      "description": "s",
-      "author": "F. Scott Fitzgerald",
-      "year": 2
+      "title": "sad",
+      "description": "asdasf",
+      "author": "af66",
+      "year": 123,
+      "id": "10e6"
     },
     {
-      "id": "ffa4",
-      "title": "2",
-      "description": "1",
-      "author": "3",
-      "year": 4
-    },
-    {
-      "id": "39f0",
-      "title": "1",
-      "description": "2",
-      "author": "4",
-      "year": 3
-    },
-    {
-      "id": "db1c",
-      "title": "6",
-      "description": "7",
-      "author": "8",
-      "year": 9
+      "title": "asdasd",
+      "description": "asdad",
+      "author": "5fa1",
+      "year": 31312,
+      "id": "a411"
     }
   ],
   "authors": [
     {
       "name": "F. Scott Fitzgerald",
       "books": [
-        "The Great Gatsby",
-        "t",
-        "f",
-        "2",
-        "1"
+        "d08d",
+        "a345"
       ],
       "id": "5ef2"
     },
     {
-      "id": "73e4",
-      "name": "3",
-      "books": []
-    },
-    {
-      "id": "4572",
-      "name": "4",
-      "books": []
-    },
-    {
-      "name": "8",
+      "name": "fsdsdf",
       "books": [
-        "6"
+        "a411"
       ],
-      "id": "dbdd"
+      "id": "5fa1"
+    },
+    {
+      "name": "asd",
+      "books": [
+        "10e6"
+      ],
+      "id": "af66"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

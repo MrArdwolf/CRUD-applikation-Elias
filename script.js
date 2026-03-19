@@ -9,63 +9,74 @@ document.getElementById("get-books").addEventListener("click", (e) => {
 const bookContainer = document.getElementById("bookContainer")
 const app = document.getElementById("app")
 
-function updateBookContainer(books) {
-    bookContainer.innerHTML = "";
-    books.forEach(book => {
-        const bookElement = document.createElement("div");
-        bookElement.classList.add("book");
+async function updateBookContainer(books) {
+    while (bookContainer.firstChild) {
+        bookContainer.removeChild(bookContainer.firstChild)
+    }
+    console.log("Updating book container with books:", books)
+    for (const book of books) {
+        try {
+            const bookElement = document.createElement("div");
+            bookElement.classList.add("book");
 
-        const titleElement = document.createElement("h3");
-        titleElement.textContent = "Title:";
+            const titleElement = document.createElement("h3");
+            titleElement.textContent = "Title:";
 
-        const titleValue = document.createElement("p");
-        titleValue.textContent = book.title;
+            const titleValue = document.createElement("p");
+            titleValue.textContent = book.title;
 
-        const descriptionElement = document.createElement("h3");
-        descriptionElement.textContent = "Description:";
+            const descriptionElement = document.createElement("h3");
+            descriptionElement.textContent = "Description:";
 
-        const descriptionValue = document.createElement("p");
-        descriptionValue.textContent = book.description;
+            const descriptionValue = document.createElement("p");
+            descriptionValue.textContent = book.description;
 
-        const authorElement = document.createElement("h3");
-        authorElement.textContent = "Author:";
+            const authorElement = document.createElement("h3");
+            authorElement.textContent = "Author:";
 
-        const authorValue = document.createElement("a");
-        authorValue.textContent = book.author;
-        authorValue.addEventListener("click", () => {
-            getBooksByAuthor(book.author)
-        });
+            const author = await getAuthorById(book.author)
 
-        const yearElement = document.createElement("h3");
-        yearElement.textContent = "Year:";
+            const authorValue = document.createElement("p");
+            authorValue.textContent = author ? author.name : "Unknown";
+            if (author) {
+                authorValue.addEventListener("click", async () => {
+                    await getBooksByAuthor(author.id)
+                });
+            }
 
-        const yearValue = document.createElement("p");
-        yearValue.textContent = book.year;
+            const yearElement = document.createElement("h3");
+            yearElement.textContent = "Year:";
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.addEventListener("click", () => {
-            deleteBook(book.id)
-        })
+            const yearValue = document.createElement("p");
+            yearValue.textContent = book.year;
 
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.addEventListener("click", () => {
-            createEditForm(book, bookElement)
-        })
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", () => {
+                deleteBook(book.id)
+            })
 
-        bookElement.appendChild(titleElement);
-        bookElement.appendChild(titleValue);
-        bookElement.appendChild(descriptionElement);
-        bookElement.appendChild(descriptionValue);
-        bookElement.appendChild(authorElement);
-        bookElement.appendChild(authorValue);
-        bookElement.appendChild(yearElement);
-        bookElement.appendChild(yearValue);
-        bookElement.appendChild(deleteButton);
-        bookElement.appendChild(editButton);
-        bookContainer.appendChild(bookElement);
-    })
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.addEventListener("click", () => {
+                createEditForm(book, bookElement)
+            })
+
+            bookElement.appendChild(titleElement);
+            bookElement.appendChild(titleValue);
+            bookElement.appendChild(descriptionElement);
+            bookElement.appendChild(descriptionValue);
+            bookElement.appendChild(authorElement);
+            bookElement.appendChild(authorValue);
+            bookElement.appendChild(yearElement);
+            bookElement.appendChild(yearValue);
+            bookElement.appendChild(deleteButton);
+            bookElement.appendChild(editButton);
+            bookContainer.appendChild(bookElement);
+        } catch (error) {
+            console.error("Error creating book element:", error)
+        }
+    }
 }
 
 
@@ -74,19 +85,34 @@ async function getBooks() {
         const response = await fetch("http://localhost:3000/books")
         const data = await response.json()
         console.log(data)
-        updateBookContainer(data)
+        await updateBookContainer(data)
         return data
     } catch (error) {
         console.error("Error fetching books:", error)
     }
 }
 
+async function getBookById(id) {
+    try {
+        const response = await fetch(`http://localhost:3000/books/${id}`)
+        return await response.json()
+    } catch (error) {
+        console.error("Error fetching book by ID:", error)
+    }
+}
+
 async function getBooksByAuthor(author) {
     try {
-        const books = await getBooks()
-        console.log("Books fetched for author:", books)
-        const booksByAuthor = books.filter(book => book.author === author)
-        updateBookContainer(booksByAuthor)
+        console.log("Fetching books by author with ID:", author)
+        const authorData = await getAuthorById(author)
+        if (!authorData) {
+            throw new Error("Author not found")
+        }
+            console.log("Author data fetched:", authorData)
+            console.log("Book IDs for author:", authorData.books)
+        const bookdata = await Promise.all(authorData.books.map(bookId => getBookById(bookId)))
+        console.log("Book data promises:", bookdata)
+        await updateBookContainer(bookdata)
     } catch (error) {
         console.error("Error fetching books by author:", error)
     }
@@ -182,14 +208,22 @@ async function createAddForm() {
     form.appendChild(yearInput)
     form.appendChild(addButton)
     form.appendChild(cancelButton)
-    app.appendChild(form)
+    app.prepend(form)
 }
 
 async function addBook(bookData) {
     try {
+        let newAuthor = null
         const author = await getAuthorByName(bookData.author)
         if (!author) {
-            await addAuthor(bookData.author)
+            newAuthor = await addAuthor(bookData.author)
+        }
+
+        const book = {
+            title: bookData.title,
+            description: bookData.description,
+            author: author ? author.id : newAuthor.id,
+            year: bookData.year
         }
 
         const response = await fetch("http://localhost:3000/books", {
@@ -197,7 +231,7 @@ async function addBook(bookData) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(bookData)
+            body: JSON.stringify(book)
         })
         const data = await response.json()
 
@@ -240,7 +274,7 @@ async function createEditForm(book, bookElement) {
         const option = document.createElement("option")
         option.value = author.name
         option.textContent = author.name
-        if (author.name === book.author) {
+        if (author.id === book.author) {
             option.selected = true
         }
         authorInput.appendChild(option)
@@ -273,11 +307,19 @@ async function createEditForm(book, bookElement) {
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault()
+        let selectedAuthor = authors.find(author => author.name === authorInput.value)
+        if (newAuthorInput.value) {
+            selectedAuthor = await addAuthor(newAuthorInput.value)
+        }
         const updatedData = {
             title: titleInput.value,
             description: descriptionInput.value,
-            author: authorInput.value || newAuthorInput.value,
+            author: selectedAuthor.id,
             year: parseInt(yearInput.value)
+        }
+        if (selectedAuthor.id !== book.author) {
+            await removeBookFromAuthor(book)
+            await addBookToAuthor({ ...updatedData, id: book.id })
         }
         await updateBook(book.id, updatedData)
         form.remove()
@@ -302,13 +344,14 @@ async function createEditForm(book, bookElement) {
 
 async function deleteBook(id) {
     try {
-        response = await fetch(`http://localhost:3000/books/${id}`, {
+        const response = await fetch(`http://localhost:3000/books/${id}`, {
             method: "DELETE"
         })
         const data = await response.json()
         if (!response.ok) {
             throw new Error(data.message || "Failed to delete book")
         }
+        removeBookFromAuthor(data)
 
         console.log("Book deleted:", data)
         getBooks()
@@ -359,6 +402,19 @@ async function getAuthorByName(name) {
     }
 }
 
+async function getAuthorById(id) {
+    try {
+        const response = await fetch(`http://localhost:3000/authors/${id}`)
+        const data = await response.json()
+        console.log("Author fetched by ID:", data)
+        return data
+    } catch (error) {
+        console.error("Error fetching author:", error)
+        return null
+
+    }
+}
+
 async function addAuthor(name) {
     try {
         const response = await fetch("http://localhost:3000/authors", {
@@ -389,15 +445,17 @@ function deleteAuthor() {
 
 async function addBookToAuthor(bookData) {
     try {
-        const getResponse = await getAuthorByName(bookData.author)
+        console.log("Adding book to author with data:", bookData)
+        const getResponse = await getAuthorById(bookData.author)
         if (!getResponse) {
             throw new Error("Author not found")
         }
 
         const books = getResponse.books || []
-        if (!books.includes(bookData.title)) {
-            books.push(bookData.title)
+        if (!books.includes(bookData.id)) {
+            books.push(bookData.id)
         }
+        console.log("Updated books array for author:", books)
 
         const response = await fetch(`http://localhost:3000/authors/${getResponse.id}`, {
             method: "PUT",
@@ -405,13 +463,48 @@ async function addBookToAuthor(bookData) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: bookData.author,
+                name: getResponse.name,
                 books: books,
             })
         })
         const updatedAuthor = await response.json()
 
         console.log("Book added to author:", updatedAuthor)
+    }
+    catch (error) {
+        console.error("Error updating author:", error)
+    }
+}
+
+async function removeBookFromAuthor(bookData) {
+    console.log("Removing book from author with data:", bookData)
+    try {
+        const getResponse = await getAuthorById(bookData.author)
+        if (!getResponse) {
+            throw new Error("Author not found")
+        }
+
+        const books = getResponse.books || []
+        if (!books.includes(bookData.id)) {
+            throw new Error("Book not found in author's list")
+        }
+
+        const updatedBooks = books.filter(id => id !== bookData.id)
+
+        const response = await fetch(`http://localhost:3000/authors/${getResponse.id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: getResponse.name,
+                books: updatedBooks,
+            })
+        })
+        const updatedAuthor = await response.json()
+
+        console.log("Book removed from author:", updatedAuthor)
+
     }
     catch (error) {
         console.error("Error updating author:", error)
