@@ -1,0 +1,17 @@
+@use '../utils' as *;
+
+.input-text {
+    @include input-text($white-color, $black-color, $primary-color, $secondary-color);
+}
+
+.input-textarea {
+    @include input-textarea($white-color, $black-color, $primary-color, $secondary-color);
+}
+
+select {
+    @include input-select($white-color, $black-color, $primary-color, $secondary-color);
+}
+
+.input-number {
+    @include input-number($white-color, $black-color, $primary-color, $secondary-color);
+}

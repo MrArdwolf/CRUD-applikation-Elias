@@ -1,0 +1,34 @@
+@use '../utils' as *;
+
+.primary-button {
+  @include button-style($primary-color, $black-color);
+
+  &:hover {
+    @include button-hover($secondary-color);
+  }
+}
+
+.link-button {
+  @include button-style(transparent, $primary-color, 0, 0);
+  box-shadow: none;
+
+  &:hover {
+    @include text-hover($secondary-color);
+  }
+}
+
+.error-button {
+  @include button-style($error-color, $black-color);
+
+  &:hover {
+    @include button-hover($error-hover-color);
+  }
+}
+
+.working-button {
+  @include button-style($working-color, $black-color);
+
+  &:hover {
+    @include button-hover($working-hover-color);
+  }
+}

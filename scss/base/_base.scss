@@ -1,0 +1,13 @@
+@use '../utils/variables' as *;
+@use './typography' as *;
+
+body {
+    background-color: $page-color;
+    color: $white-color;
+    width: 100dvw;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+
+    @include font-default;
+}

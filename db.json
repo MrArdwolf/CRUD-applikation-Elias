@@ -8,20 +8,6 @@
       "id": "a345"
     },
     {
-      "id": "d08d",
-      "title": "asdasd",
-      "description": "asfasfas",
-      "author": "5ef2",
-      "year": 1234
-    },
-    {
-      "title": "sad",
-      "description": "asdasf",
-      "author": "af66",
-      "year": 123,
-      "id": "10e6"
-    },
-    {
       "title": "asdasd",
       "description": "asdad",
       "author": "5fa1",
@@ -33,7 +19,6 @@
     {
       "name": "F. Scott Fitzgerald",
       "books": [
-        "d08d",
         "a345"
       ],
       "id": "5ef2"
@@ -47,10 +32,13 @@
     },
     {
       "name": "asd",
-      "books": [
-        "10e6"
-      ],
+      "books": [],
       "id": "af66"
+    },
+    {
+      "name": "jag",
+      "books": [],
+      "id": "dc3c"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

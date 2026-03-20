@@ -1,0 +1,82 @@
+@use "../utils" as *;
+@use "../base/typography" as *;
+
+#app {
+    width: 100%;
+    max-width: 1440px;
+    padding: 36px 48px;
+    background-color: $background-color;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow: hidden;
+
+    .app-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+
+        h2 {
+            @include font-title-large;
+        }
+    }
+
+    .bookContainer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .form-back {
+        width: 100dvw;
+        height: 100dvh;
+        background-color: $black-color;
+        opacity: 70%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+    }
+
+    .add-form {
+        display: flex;
+        gap: 16px;
+        border: solid 4px $primary-color;
+        border-radius: 16px;
+        padding: 16px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: $page-color;
+        z-index: 101;
+
+        .book-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .add-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 16px;
+            }
+        }
+    }
+}

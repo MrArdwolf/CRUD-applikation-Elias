@@ -1,0 +1,58 @@
+@use "../utils" as *;
+@use "../base/typography" as *;
+
+.login-page {
+    display: flex;
+    flex-direction: column;
+    background-color: $background-color;
+    width: 100%;
+    align-items: center;
+    max-width: 440px;
+    gap: 24px;
+    padding: 50px;
+
+    .title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        width: 100%;
+
+        h1 {
+            @include font-title;
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        width: 100%;
+
+        .inputs {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .input-row {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+
+                label {
+                    @include font-label;
+                }
+            }
+        }
+
+        .submit-button {
+            width: 100%;
+        }
+
+        .forgot-password {
+            align-self: flex-end;
+        }
+    }
+}

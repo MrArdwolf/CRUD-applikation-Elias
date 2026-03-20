@@ -2,22 +2,33 @@ document.getElementById("add-book").addEventListener("click", (e) => {
     e.preventDefault()
     createAddForm()
 })
-document.getElementById("get-books").addEventListener("click", (e) => {
-    e.preventDefault()
-    getBooks()
-})
 const bookContainer = document.getElementById("bookContainer")
 const app = document.getElementById("app")
+const topButtonContainer = document.getElementById("buttons")
 
-async function updateBookContainer(books) {
+async function updateBookContainer(books, authorPage) {
     while (bookContainer.firstChild) {
         bookContainer.removeChild(bookContainer.firstChild)
     }
     console.log("Updating book container with books:", books)
+
+    if (authorPage) {
+        const backButton = document.createElement("button")
+        backButton.classList.add("working-button")
+        backButton.textContent = "Back"
+        topButtonContainer.prepend(backButton)
+        backButton.addEventListener("click", () => {
+            getBooks(backButton);
+        })
+    }
+
     for (const book of books) {
         try {
             const bookElement = document.createElement("div");
             bookElement.classList.add("book");
+
+            const titleContainer = document.createElement("div");
+            titleContainer.classList = ("book-title book-row");
 
             const titleElement = document.createElement("h3");
             titleElement.textContent = "Title:";
@@ -25,11 +36,17 @@ async function updateBookContainer(books) {
             const titleValue = document.createElement("p");
             titleValue.textContent = book.title;
 
+            const descriptionContainer = document.createElement("div");
+            descriptionContainer.classList = ("book-description book-row");
+
             const descriptionElement = document.createElement("h3");
             descriptionElement.textContent = "Description:";
 
             const descriptionValue = document.createElement("p");
             descriptionValue.textContent = book.description;
+
+            const authorContainer = document.createElement("div");
+            authorContainer.classList = ("book-author book-row");
 
             const authorElement = document.createElement("h3");
             authorElement.textContent = "Author:";
@@ -44,34 +61,47 @@ async function updateBookContainer(books) {
                 });
             }
 
+            const yearContainer = document.createElement("div");
+            yearContainer.classList = ("book-year book-row");
+
             const yearElement = document.createElement("h3");
             yearElement.textContent = "Year:";
 
             const yearValue = document.createElement("p");
             yearValue.textContent = book.year;
 
+            const buttonContainer = document.createElement("div");
+            buttonContainer.classList.add("book-buttons");
+
             const deleteButton = document.createElement("button");
+            deleteButton.classList.add("error-button");
             deleteButton.textContent = "Delete";
             deleteButton.addEventListener("click", () => {
                 deleteBook(book.id)
             })
 
             const editButton = document.createElement("button");
+            editButton.classList.add("working-button");
             editButton.textContent = "Edit";
             editButton.addEventListener("click", () => {
                 createEditForm(book, bookElement)
             })
 
-            bookElement.appendChild(titleElement);
-            bookElement.appendChild(titleValue);
-            bookElement.appendChild(descriptionElement);
-            bookElement.appendChild(descriptionValue);
-            bookElement.appendChild(authorElement);
-            bookElement.appendChild(authorValue);
-            bookElement.appendChild(yearElement);
-            bookElement.appendChild(yearValue);
-            bookElement.appendChild(deleteButton);
-            bookElement.appendChild(editButton);
+            titleContainer.appendChild(titleElement);
+            titleContainer.appendChild(titleValue);
+            bookElement.appendChild(titleContainer);
+            descriptionContainer.appendChild(descriptionElement);
+            descriptionContainer.appendChild(descriptionValue);
+            bookElement.appendChild(descriptionContainer)
+            authorContainer.appendChild(authorElement);
+            authorContainer.appendChild(authorValue);
+            bookElement.appendChild(authorContainer);
+            yearContainer.appendChild(yearElement);
+            yearContainer.appendChild(yearValue);
+            bookElement.appendChild(yearContainer);
+            buttonContainer.appendChild(deleteButton);
+            buttonContainer.appendChild(editButton);
+            bookElement.appendChild(buttonContainer);
             bookContainer.appendChild(bookElement);
         } catch (error) {
             console.error("Error creating book element:", error)
@@ -80,7 +110,8 @@ async function updateBookContainer(books) {
 }
 
 
-async function getBooks() {
+async function getBooks(backButton) {
+    if (backButton) backButton.remove()
     try {
         const response = await fetch("http://localhost:3000/books")
         const data = await response.json()
@@ -112,34 +143,56 @@ async function getBooksByAuthor(author) {
             console.log("Book IDs for author:", authorData.books)
         const bookdata = await Promise.all(authorData.books.map(bookId => getBookById(bookId)))
         console.log("Book data promises:", bookdata)
-        await updateBookContainer(bookdata)
+        await updateBookContainer(bookdata, true)
     } catch (error) {
         console.error("Error fetching books by author:", error)
     }
 }
 
 async function createAddForm() {
+    const formBackground = document.createElement("div")
+    formBackground.classList.add("form-back")
+
+
     const form = document.createElement("form")
     form.classList.add("add-form")
+
+    const leftColumn = document.createElement("div")
+    leftColumn.classList.add("left-column")
+
+    const titleContainer = document.createElement("div")
+    titleContainer.classList.add("book-row")
 
     const titleLabel = document.createElement("label");
     titleLabel.textContent = "Title:";
     titleLabel.htmlFor = "title"
 
     const titleInput = document.createElement("input")
+    titleInput.classList.add("input-text")
     titleInput.type = "text"
     titleInput.required = true
     titleInput.placeholder = "Enter book title"
-    titleInput.name = "title"
+    titleInput.id = "title"
+
+    const descriptionContainer = document.createElement("div")
+    descriptionContainer.classList.add("book-row")
+    descriptionContainer.classList.add("book-description")
 
     const descriptionLabel = document.createElement("label");
     descriptionLabel.textContent = "Description:";
     descriptionLabel.htmlFor = "description"
 
     const descriptionInput = document.createElement("textarea")
+    descriptionInput.classList.add("input-textarea")
     descriptionInput.required = true
     descriptionInput.placeholder = "Enter book description"
-    descriptionInput.name = "description"
+    descriptionInput.id = "description"
+
+    const rightColumn = document.createElement("div")
+    rightColumn.classList.add("right-column")
+
+    const authorContainer = document.createElement("div")
+    authorContainer.classList.add("book-row")
 
     const authorLabel = document.createElement("label");
     authorLabel.textContent = "Author:";
@@ -147,7 +200,7 @@ async function createAddForm() {
 
     const authorInput = document.createElement("select")
     authorInput.required = true
-    authorInput.name = "author"
+    authorInput.id = "author"
 
     const authors = await fetch("http://localhost:3000/authors").then(res => res.json())
     authors.forEach(author => {
@@ -158,27 +211,40 @@ async function createAddForm() {
     })
 
     const newAuthorInput = document.createElement("input")
+    newAuthorInput.classList.add("input-text")
     newAuthorInput.type = "text"
     newAuthorInput.placeholder = "Or enter new author"
-    newAuthorInput.name = "newAuthor"
+    newAuthorInput.id = "newAuthor"
+
+    const yearContainer = document.createElement("div")
+    yearContainer.classList.add("book-row")
 
     const yearLabel = document.createElement("label");
     yearLabel.textContent = "Year:";
     yearLabel.htmlFor = "year"
 
     const yearInput = document.createElement("input")
+    yearInput.required = true
+    yearInput.placeholder = "Enter publication year"
+    yearInput.classList.add("input-number")
     yearInput.type = "number"
-    yearInput.name = "year"
+    yearInput.id = "year"
+
+    const buttonContainer = document.createElement("div")
+    buttonContainer.classList.add("add-buttons")
 
     const addButton = document.createElement("button")
+    addButton.classList.add("primary-button");
     addButton.textContent = "Add"
     addButton.type = "submit"
 
     const cancelButton = document.createElement("button")
+    cancelButton.classList.add("working-button");
     cancelButton.textContent = "Cancel"
     cancelButton.type = "button"
     cancelButton.addEventListener("click", () => {
         form.remove()
+        formBackground.remove()
         removeEventListener("submit", addBook)
         removeEventListener("click", cancelButton)
     })
@@ -193,21 +259,30 @@ async function createAddForm() {
         }
         await addBook(newBookData)
         form.remove()
+        formBackground.remove()
         removeEventListener("submit", addBook)
         removeEventListener("click", cancelButton)
     })
 
-    form.appendChild(titleLabel)
-    form.appendChild(titleInput)
-    form.appendChild(descriptionLabel)
-    form.appendChild(descriptionInput)
-    form.appendChild(authorLabel)
-    form.appendChild(authorInput)
-    form.appendChild(newAuthorInput)
-    form.appendChild(yearLabel)
-    form.appendChild(yearInput)
-    form.appendChild(addButton)
-    form.appendChild(cancelButton)
+    app.appendChild(formBackground)
+    form.appendChild(leftColumn)
+    leftColumn.appendChild(titleContainer)
+    titleContainer.appendChild(titleLabel)
+    titleContainer.appendChild(titleInput)
+    leftColumn.appendChild(descriptionContainer)
+    descriptionContainer.appendChild(descriptionLabel)
+    descriptionContainer.appendChild(descriptionInput)
+    form.appendChild(rightColumn)
+    rightColumn.appendChild(authorContainer)
+    authorContainer.appendChild(authorLabel)
+    authorContainer.appendChild(authorInput)
+    authorContainer.appendChild(newAuthorInput)
+    rightColumn.appendChild(yearContainer)
+    yearContainer.appendChild(yearLabel)
+    yearContainer.appendChild(yearInput)
+    rightColumn.appendChild(buttonContainer)
+    buttonContainer.appendChild(cancelButton)
+    buttonContainer.appendChild(addButton)
     app.prepend(form)
 }
 
@@ -252,18 +327,29 @@ async function createEditForm(book, bookElement) {
     const form = document.createElement("form")
     form.classList.add("edit-form")
 
+    const titleContainer = document.createElement("div");
+    titleContainer.classList = ("edit-title book-row");
+
     const titleElement = document.createElement("h3");
     titleElement.textContent = "Title:";
 
     const titleInput = document.createElement("input")
+    titleInput.classList.add("input-text")
     titleInput.type = "text"
     titleInput.value = book.title
+
+    const descriptionContainer = document.createElement("div");
+    descriptionContainer.classList = ("edit-description book-row");
 
     const descriptionElement = document.createElement("h3");
     descriptionElement.textContent = "Description:";
 
     const descriptionInput = document.createElement("textarea")
+    descriptionInput.classList.add("input-textarea")
     descriptionInput.value = book.description
+
+    const authorContainer = document.createElement("div");
+    authorContainer.classList = ("edit-author book-row");
 
     const authorElement = document.createElement("h3");
     authorElement.textContent = "Author:";
@@ -281,23 +367,31 @@ async function createEditForm(book, bookElement) {
     })
 
     const newAuthorInput = document.createElement("input")
+    newAuthorInput.classList.add("input-text")
     newAuthorInput.type = "text"
     newAuthorInput.placeholder = "Or enter new author"
+
+    const yearContainer = document.createElement("div");
+    yearContainer.classList = ("edit-year book-row");
 
     const yearElement = document.createElement("h3");
     yearElement.textContent = "Year:";
 
     const yearInput = document.createElement("input")
+    yearInput.classList.add("input-number")
     yearInput.type = "number"
     yearInput.value = book.year
 
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("edit-buttons");
+
     const saveButton = document.createElement("button")
+    saveButton.classList.add("primary-button");
     saveButton.textContent = "Save"
     saveButton.type = "submit"
 
-
-
     const cancelButton = document.createElement("button")
+    cancelButton.classList.add("working-button");
     cancelButton.textContent = "Cancel"
     cancelButton.type = "button"
     cancelButton.addEventListener("click", () => {
@@ -325,17 +419,22 @@ async function createEditForm(book, bookElement) {
         form.remove()
     })
 
-    form.appendChild(titleElement)
-    form.appendChild(titleInput)
-    form.appendChild(descriptionElement)
-    form.appendChild(descriptionInput)
-    form.appendChild(authorElement)
-    form.appendChild(authorInput)
+    form.appendChild(titleContainer)
+    titleContainer.appendChild(titleElement)
+    titleContainer.appendChild(titleInput)
+    form.appendChild(descriptionContainer)
+    descriptionContainer.appendChild(descriptionElement)
+    descriptionContainer.appendChild(descriptionInput)
+    form.appendChild(authorContainer)
+    authorContainer.appendChild(authorElement)
+    authorContainer.appendChild(authorInput)
     form.appendChild(newAuthorInput)
-    form.appendChild(yearElement)
-    form.appendChild(yearInput)
-    form.appendChild(saveButton)
-    form.appendChild(cancelButton)
+    form.appendChild(yearContainer)
+    yearContainer.appendChild(yearElement)
+    yearContainer.appendChild(yearInput)
+    buttonContainer.appendChild(saveButton)
+    buttonContainer.appendChild(cancelButton)
+    form.appendChild(buttonContainer)
 
     bookElement.innerHTML = ""
     bookElement.appendChild(form)

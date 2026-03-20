@@ -1,0 +1,40 @@
+@use "../utils" as *;
+@use "../base/typography" as *;
+
+.book {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: solid 4px $primary-color;
+    border-radius: 16px;
+    padding: 24px;
+
+    h3 {
+        @include font-label;
+    }
+
+    .book-author {
+        p {
+            color: $primary-color;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    }
+
+    .book-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .book-buttons, .edit-buttons {
+        display: flex;
+        gap: 16px;
+    }
+
+    .edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+}
