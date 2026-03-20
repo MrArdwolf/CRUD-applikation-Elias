@@ -184,58 +184,6 @@ select:focus {
   gap: 16px;
 }
 
-.login-page {
-  display: flex;
-  flex-direction: column;
-  background-color: #282828;
-  width: 100%;
-  align-items: center;
-  max-width: 440px;
-  gap: 24px;
-  padding: 50px;
-}
-.login-page .title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  width: 100%;
-}
-.login-page .title-row h1 {
-  font-family: "Inter", sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-}
-.login-page form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  width: 100%;
-}
-.login-page form .inputs {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.login-page form .inputs .input-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-}
-.login-page form .inputs .input-row label {
-  font-family: "Inter", sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-}
-.login-page form .submit-button {
-  width: 100%;
-}
-.login-page form .forgot-password {
-  align-self: flex-end;
-}
-
 #app {
   width: 100%;
   max-width: 1440px;
@@ -254,6 +202,22 @@ select:focus {
 #app .app-top h2 {
   font-family: "Inter", sans-serif;
   font-size: 32px;
+  font-weight: 700;
+}
+#app .alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f52727;
+  color: #000000;
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px;
+  border-radius: 16px;
+}
+#app .alert p {
   font-weight: 700;
 }
 #app .bookContainer {

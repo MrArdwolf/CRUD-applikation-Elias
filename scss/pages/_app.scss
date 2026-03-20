@@ -21,6 +21,24 @@
         }
     }
 
+    .alert {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $error-color;
+        color: $black-color;
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 16px;
+        border-radius: 16px;
+
+        p {
+            font-weight: 700;
+        }
+    }
+
     .bookContainer {
         width: 100%;
         display: flex;

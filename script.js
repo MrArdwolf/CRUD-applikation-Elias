@@ -8,13 +8,14 @@ const topButtonContainer = document.getElementById("buttons");
 
 function errorAlert(message) {
     const alertContainer = document.createElement("div");
+    alertContainer.classList.add("alert")
     const alert = document.createElement("p");
     alert.textContent = message;
     alertContainer.appendChild(alert);
     app.prepend(alertContainer)
     setTimeout(() => {
         alertContainer.remove();
-    }, 2000);
+    }, 3000);
 }
 
 async function updateBookContainer(books, authorPage) {
